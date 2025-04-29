@@ -1,0 +1,180 @@
+name: Update Tokens from Dimension CSS
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths:
+      - 'base/dimension.css'
+    branches:
+      - main
+
+jobs:
+  update-tokens:
+    runs-on: ubuntu-latest
+    # Only run on PRs created by Supernova targeting main
+    if: contains(github.event.pull_request.title, 'Supernova') || contains(github.event.pull_request.body, 'Supernova')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      
+      - name: Create scripts directory if it doesn't exist
+        run: mkdir -p .github/scripts
+      
+      - name: Create update script
+        run: |
+          cat > .github/scripts/update-tokens-from-css.js << 'EOL'
+          const fs = require('fs');
+          const path = require('path');
+
+          // Paths to files - adjusted for main branch structure
+          const dimensionCssPath = path.join(process.cwd(), 'base', 'dimension.css');
+          const tokensJsPath = path.join(process.cwd(), 'src', 'tokens.ts');
+
+          console.log('Starting update script on main branch');
+          console.log(`Dimension CSS path: ${dimensionCssPath}`);
+          console.log(`Tokens TS path: ${tokensJsPath}`);
+
+          // Function to extract dimension values from CSS
+          function extractDimensionValues(cssContent) {
+            const values = {};
+            const pattern = /--dimension-([a-zA-Z0-9-]+):\s*([\d.]+)px/g;
+            let match;
+            
+            while ((match = pattern.exec(cssContent)) !== null) {
+              const fullName = match[1];
+              const value = match[2];
+              values[fullName] = value;
+              console.log(`Found dimension: ${fullName} = ${value}px`);
+            }
+            
+            return values;
+          }
+
+          // Function to map dimension name to component and property
+          function mapDimensionToTokenPath(name) {
+            // Handle the specific case from the screenshots
+            if (name === 'order-info-card-mobile-width') {
+              return {
+                component: 'orderInfoCard',
+                property: 'mobileWidth'
+              };
+            }
+            
+            // Generic mapping logic
+            const parts = name.split('-');
+            if (parts.length < 2) return null;
+            
+            // Convert kebab-case to camelCase
+            const camelCase = (str) => {
+              return str.replace(/-([a-z])/g, (match, letter) => letter.toUpperCase());
+            };
+            
+            // Last part is the property
+            const property = camelCase(parts[parts.length - 1]);
+            
+            // Everything before is the component
+            const componentParts = parts.slice(0, parts.length - 1);
+            const component = camelCase(componentParts.join('-'));
+            
+            return { component, property };
+          }
+
+          // Function to update tokens.ts with only changed values
+          function updateTokensFile(tokensContent, dimensionValues) {
+            let updatedContent = tokensContent;
+            let changesMade = false;
+            
+            for (const [name, value] of Object.entries(dimensionValues)) {
+              const mapping = mapDimensionToTokenPath(name);
+              
+              if (mapping) {
+                const { component, property } = mapping;
+                console.log(`Mapping ${name} to ${component}.${property}`);
+                
+                // Create pattern to find this specific property in tokens.ts
+                // Enhanced regex to be more flexible with different code styles
+                const pattern = new RegExp(`(${component}\\s*:\\s*{[\\s\\S]*?${property}\\s*:\\s*['"])([\\d.]+)(px['"][\\s\\S]*?})`, 'i');
+                
+                const match = updatedContent.match(pattern);
+                if (match) {
+                  const oldValue = match[2];
+                  if (oldValue !== value) {
+                    updatedContent = updatedContent.replace(pattern, `$1${value}$3`);
+                    console.log(`Updated ${component}.${property}: ${oldValue}px -> ${value}px`);
+                    changesMade = true;
+                  } else {
+                    console.log(`No change needed for ${component}.${property}, value already ${value}px`);
+                  }
+                } else {
+                  console.log(`Could not find pattern for ${component}.${property} in tokens.ts`);
+                }
+              }
+            }
+            
+            return { updatedContent, changesMade };
+          }
+
+          // Main function
+          try {
+            // Check if files exist
+            if (!fs.existsSync(dimensionCssPath)) {
+              console.error(`dimension.css file not found at ${dimensionCssPath}`);
+              process.exit(1);
+            }
+            
+            if (!fs.existsSync(tokensJsPath)) {
+              console.error(`tokens.ts file not found at ${tokensJsPath}`);
+              process.exit(1);
+            }
+            
+            // Read files
+            const dimensionCssContent = fs.readFileSync(dimensionCssPath, 'utf8');
+            const tokensContent = fs.readFileSync(tokensJsPath, 'utf8');
+            
+            // Extract values from dimension.css
+            const dimensionValues = extractDimensionValues(dimensionCssContent);
+            
+            if (Object.keys(dimensionValues).length === 0) {
+              console.log('No dimension values found in CSS file');
+              process.exit(0);
+            }
+            
+            // Update tokens.ts
+            const { updatedContent, changesMade } = updateTokensFile(tokensContent, dimensionValues);
+            
+            if (changesMade) {
+              // Write updated content
+              fs.writeFileSync(tokensJsPath, updatedContent);
+              console.log('tokens.ts updated successfully');
+            } else {
+              console.log('No changes needed in tokens.ts');
+            }
+          } catch (error) {
+            console.error('Error:', error);
+            process.exit(1);
+          }
+          EOL
+
+      - name: Run update script
+        run: node .github/scripts/update-tokens-from-css.js
+      
+      - name: Check for changes
+        id: git-check
+        run: |
+          git diff --exit-code --quiet src/tokens.ts || echo "changes=true" >> $GITHUB_OUTPUT
+      
+      - name: Commit changes if any
+        if: steps.git-check.outputs.changes == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add src/tokens.ts
+          git commit -m "Update tokens.ts based on dimension.css changes from Supernova"
+          git push
