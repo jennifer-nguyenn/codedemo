@@ -21,7 +21,7 @@ const CardContainer = styled.div<{ $unlocked?: boolean }>`
   border-radius: ${tokens.borderRadius.large};
   min-width: 311px;
   width: 311px;
-  height: 167px;
+  min-height: 167px;
   flex: 0 0 311px;
   position: relative;
   display: flex;
@@ -70,15 +70,13 @@ const Title = styled(H4)`
   -webkit-box-orient: vertical;
   overflow: hidden;
   text-overflow: ellipsis;
-  height: calc(${tokens.typography.lineHeight.h4} * 2);
-  min-height: calc(${tokens.typography.lineHeight.h4} * 2);
 `;
 
 const PointsCaption = styled(Text)`
   color: ${tokens.colors.textSecondary};
   font-size: ${tokens.typography.sizes.small};
   line-height: ${tokens.typography.lineHeight.small};
-  margin-bottom: ${tokens.spacing.space2};
+  margin-bottom: ${tokens.spacing.space1};
 `;
 
 const UnlockText = styled(Text)`
@@ -90,6 +88,7 @@ const UnlockText = styled(Text)`
 
 const ProgressContainer = styled.div`
   margin-top: auto;
+  padding-top: ${tokens.spacing.space2};
 `;
 
 const ProgressBar = styled.div`
