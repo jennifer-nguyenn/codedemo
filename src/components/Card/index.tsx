@@ -79,7 +79,7 @@ export const ItemCard = styled.div<CardProps>`
   color: ${tokens.colors.textPrimary};
   overflow: hidden;
   width: 168px;
-  height: 194px;
+  height: 194px; /* Base aspect ratio ~1.15 */
   flex: 0 0 168px;
   display: flex;
   flex-direction: column;
@@ -88,12 +88,19 @@ export const ItemCard = styled.div<CardProps>`
 
   @media (min-width: ${tokens.breakpoints.tablet}) {
     width: 240px;
-    height: 280px;
+    height: 277px; /* Maintains ~1.15 aspect ratio (240 × 1.15) */
+    flex: 0 0 240px;
+  }
+
+  @media (min-width: ${tokens.breakpoints.desktop}) {
+    width: 381px;
+    height: 438px; /* Maintains ~1.15 aspect ratio (381 × 1.15) */
+    flex: 0 0 381px;
   }
 
   .image-container {
     width: 100%;
-    height: 50%;
+    height: 60%;
     position: relative;
 
     img {
@@ -107,7 +114,7 @@ export const ItemCard = styled.div<CardProps>`
   }
 
   .content {
-    height: 50%;
+    height: 40%;
     padding: ${tokens.spacing.space2};
     display: flex;
     flex-direction: column;
