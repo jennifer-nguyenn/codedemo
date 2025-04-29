@@ -20,7 +20,7 @@ const CardContainer = styled.div`
   position: relative;
   display: flex;
   flex-direction: column;
-  gap: ${tokens.spacing.space1};
+  gap: 0;
   cursor: pointer;
   transition: transform 0.2s ease-in-out;
 
@@ -44,10 +44,16 @@ const CountBadge = styled.div`
   font-weight: ${tokens.typography.weights.bold};
 `;
 
+const TextGroup = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: ${tokens.spacing.space1};
+  margin-bottom: ${tokens.spacing.space2};
+`;
+
 const ViewOrderLink = styled(Text)`
   text-decoration: underline;
   cursor: pointer;
-  margin-top: ${tokens.spacing.space1};
   color: ${tokens.colors.darkTextPrimary};
 `;
 
@@ -59,19 +65,21 @@ export const OrderInfoCard: React.FC<OrderInfoCardProps> = ({
 }) => {
   return (
     <CardContainer>
-      <Text
-        variant="small"
-        weight="bold"
-        style={{ color: tokens.colors.darkTextPrimary }}
-      >
-        {date}
-      </Text>
-      <Text variant="tiny" style={{ color: tokens.colors.darkTextSecondary }}>
-        {time}
-      </Text>
-      <Text variant="tiny" style={{ color: tokens.colors.darkTextSecondary }}>
-        Order ID: {orderId}
-      </Text>
+      <TextGroup>
+        <Text
+          variant="small"
+          weight="bold"
+          style={{ color: tokens.colors.darkTextPrimary }}
+        >
+          {date}
+        </Text>
+        <Text variant="tiny" style={{ color: tokens.colors.darkTextSecondary }}>
+          {time}
+        </Text>
+        <Text variant="tiny" style={{ color: tokens.colors.darkTextSecondary }}>
+          Order ID: {orderId}
+        </Text>
+      </TextGroup>
       <CountBadge>{count}</CountBadge>
       <ViewOrderLink variant="small" weight="bold">
         View Order
