@@ -83,7 +83,7 @@ const UnlockText = styled(Text)`
 
 const ProgressContainer = styled.div`
   margin-top: auto;
-  padding-top: ${tokens.spacing.space1};
+  margin-bottom: ${tokens.spacing.space4};
 `;
 
 const ProgressBar = styled.div`
