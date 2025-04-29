@@ -64,7 +64,7 @@ const Title = styled(H4)`
   color: ${tokens.colors.textPrimary};
   font-size: ${tokens.typography.sizes.h4};
   line-height: ${tokens.typography.lineHeight.h4};
-  margin-bottom: 5px;
+  margin-bottom: ${tokens.spacing.space1};
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -74,14 +74,14 @@ const Title = styled(H4)`
   min-height: calc(${tokens.typography.lineHeight.h4} * 2);
 `;
 
-const PointsValue = styled(Text)`
+const PointsCaption = styled(Text)`
   color: ${tokens.colors.textSecondary};
   font-size: ${tokens.typography.sizes.small};
   line-height: ${tokens.typography.lineHeight.small};
-  margin-bottom: ${tokens.spacing.space1};
+  margin-bottom: ${tokens.spacing.space2};
 `;
 
-const Subtitle = styled(Text)`
+const UnlockText = styled(Text)`
   color: ${tokens.colors.textSecondary};
   font-size: ${tokens.typography.sizes.small};
   line-height: ${tokens.typography.lineHeight.small};
@@ -174,9 +174,9 @@ export const RewardCard: React.FC<RewardCardProps> = ({
         </LockedBadge>
       )}
       <Title>{title}</Title>
-      <PointsValue>{points} Points</PointsValue>
+      <PointsCaption>{points} Points</PointsCaption>
       {!isUnlocked && (
-        <Subtitle>Get {remainingPoints} more points to unlock</Subtitle>
+        <UnlockText>Get {remainingPoints} more points to unlock</UnlockText>
       )}
       <ProgressContainer>
         <ProgressBar>
