@@ -64,12 +64,7 @@ const Title = styled(H4)`
   color: ${tokens.colors.textPrimary};
   font-size: ${tokens.typography.sizes.h4};
   line-height: ${tokens.typography.lineHeight.h4};
-  margin-bottom: ${tokens.spacing.space1};
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  margin-bottom: ${tokens.spacing.space2};
 `;
 
 const PointsCaption = styled(Text)`
@@ -88,6 +83,7 @@ const UnlockText = styled(Text)`
 
 const ProgressContainer = styled.div`
   margin-top: auto;
+  padding-top: ${tokens.spacing.space1};
 `;
 
 const ProgressBar = styled.div`
