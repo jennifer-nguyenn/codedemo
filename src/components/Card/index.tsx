@@ -160,6 +160,9 @@ export const RewardCard = styled.div<RewardCardProps>`
   gap: ${tokens.spacing.space2};
   opacity: ${({ $unlocked = false }) => ($unlocked ? 1 : 0.7)};
   transition: opacity 0.2s ease;
+  width: 311px;
+  max-width: 311px;
+  flex: 0 0 auto;
 
   &:hover {
     opacity: 1;

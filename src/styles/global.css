@@ -128,4 +128,17 @@ h1 {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   text-align: center;
+}
+
+.reward-card {
+  width: 311px;
+  max-width: 311px;
+  flex: 0 0 auto;
+}
+
+@media (min-width: 768px) {
+  .reward-card {
+    width: 311px;
+    max-width: 311px;
+  }
 } 

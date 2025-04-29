@@ -17,6 +17,9 @@ const CardContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
+  width: 311px;
+  max-width: 311px;
+  flex: 0 0 auto;
 `;
 
 const HeaderText = styled(Text)`
