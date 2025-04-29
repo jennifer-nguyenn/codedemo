@@ -74,15 +74,22 @@ const Title = styled(H4)`
   min-height: calc(${tokens.typography.lineHeight.h4} * 2);
 `;
 
-const PointsText = styled(Text)`
+const PointsValue = styled(Text)`
   color: ${tokens.colors.textSecondary};
   font-size: ${tokens.typography.sizes.small};
   line-height: ${tokens.typography.lineHeight.small};
-  margin-bottom: auto;
+  margin-bottom: ${tokens.spacing.space1};
+`;
+
+const Subtitle = styled(Text)`
+  color: ${tokens.colors.textSecondary};
+  font-size: ${tokens.typography.sizes.small};
+  line-height: ${tokens.typography.lineHeight.small};
+  margin-bottom: ${tokens.spacing.space2};
 `;
 
 const ProgressContainer = styled.div`
-  margin-bottom: 24px;
+  margin-top: auto;
 `;
 
 const ProgressBar = styled.div`
@@ -138,6 +145,7 @@ export const RewardCard: React.FC<RewardCardProps> = ({
   isUnlocked = false,
 }: RewardCardProps) => {
   const progressPercentage = (progress / totalPoints) * 100;
+  const remainingPoints = totalPoints - progress;
 
   return (
     <CardContainer $unlocked={isUnlocked}>
@@ -166,7 +174,10 @@ export const RewardCard: React.FC<RewardCardProps> = ({
         </LockedBadge>
       )}
       <Title>{title}</Title>
-      <PointsText>{points} Points</PointsText>
+      <PointsValue>{points} Points</PointsValue>
+      {!isUnlocked && (
+        <Subtitle>Get {remainingPoints} more points to unlock</Subtitle>
+      )}
       <ProgressContainer>
         <ProgressBar>
           <ProgressTrack>
