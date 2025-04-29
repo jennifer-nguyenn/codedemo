@@ -21,7 +21,7 @@ const CardContainer = styled.div<{ $unlocked?: boolean }>`
   border-radius: ${tokens.borderRadius.large};
   min-width: 311px;
   width: 311px;
-  min-height: 167px;
+  height: 167px;
   flex: 0 0 311px;
   position: relative;
   display: flex;
@@ -76,7 +76,7 @@ const PointsCaption = styled(Text)`
   color: ${tokens.colors.textSecondary};
   font-size: ${tokens.typography.sizes.small};
   line-height: ${tokens.typography.lineHeight.small};
-  margin-bottom: ${tokens.spacing.space1};
+  margin-bottom: ${tokens.spacing.space2};
 `;
 
 const UnlockText = styled(Text)`
@@ -88,7 +88,6 @@ const UnlockText = styled(Text)`
 
 const ProgressContainer = styled.div`
   margin-top: auto;
-  padding-top: ${tokens.spacing.space2};
 `;
 
 const ProgressBar = styled.div`
@@ -173,8 +172,9 @@ export const RewardCard: React.FC<RewardCardProps> = ({
         </LockedBadge>
       )}
       <Title>{title}</Title>
-      <PointsCaption>{points} Points</PointsCaption>
-      {!isUnlocked && (
+      {isUnlocked ? (
+        <PointsCaption>{points} Points</PointsCaption>
+      ) : (
         <UnlockText>Get {remainingPoints} more points to unlock</UnlockText>
       )}
       <ProgressContainer>
