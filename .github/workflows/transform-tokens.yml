@@ -1,0 +1,116 @@
+name: Transform Design Tokens
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/generated-tokens.js/**'
+jobs:
+  transform-tokens:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      
+      - name: Create token transformer script
+        run: |
+          mkdir -p scripts
+          cat > scripts/transform-tokens.js << 'EOL'
+const fs = require('fs');
+const path = require('path');
+
+/**
+ * A more robust token transformation utility that handles
+ * mapping between Supernova's output and your design tokens
+ */
+class TokenTransformer {
+  constructor() {
+    this.generatedPath = path.join(process.cwd(), 'src', 'generated-tokens.js');
+    this.tokensPath = path.join(process.cwd(), 'src', 'styles', 'tokens.ts');
+    this.hasChanges = false;
+    this.generatedTokens = null;
+    this.currentTokens = null;
+  }
+
+  async transform() {
+    try {
+      console.log('Starting token transformation process...');
+      
+      // Read files
+      await this.readFiles();
+      
+      // Extract tokens from generated file
+      this.parseGeneratedTokens();
+      
+      // Update tokens file
+      this.updateTokensFile();
+      
+      // Write updated tokens if changes were made
+      if (this.hasChanges) {
+        await this.writeTokensFile();
+        console.log('✅ Token transformation completed with changes');
+        return true;
+      } else {
+        console.log('ℹ️ No changes detected in tokens');
+        return false;
+      }
+    } catch (error) {
+      console.error('❌ Error transforming tokens:', error);
+      throw error;
+    }
+  }
+
+  async readFiles() {
+    try {
+      console.log(`Reading generated tokens from: ${this.generatedPath}`);
+      this.generatedContent = await fs.promises.readFile(this.generatedPath, 'utf8');
+      
+      console.log(`Reading target tokens from: ${this.tokensPath}`);
+      this.tokensContent = await fs.promises.readFile(this.tokensPath, 'utf8');
+    } catch (error) {
+      console.error('Error reading token files:', error);
+      throw error;
+    }
+  }
+
+  parseGeneratedTokens() {
+    console.log('Parsing generated tokens...');
+    
+    // Initialize extracted tokens object
+    this.extractedTokens = {
+      spacing: {},
+      typography: {},
+      colors: {},
+      components: {},
+      sizes: {}
+    };
+
+    // Extract component values - specifically looking for mobileWidth
+    const componentMatches = this.generatedContent.match(/components\s*:\s*{([^}]*)}/s);
+    if (componentMatches && componentMatches[1]) {
+      const mobileWidthMatch = componentMatches[1].match(/mobileWidth\s*:\s*['"]([^'"]+)['"]/);
+      if (mobileWidthMatch) {
+        this.extractedTokens.components.mobileWidth = mobileWidthMatch[1];
+        console.log('Found mobileWidth:', this.extractedTokens.components.mobileWidth);
+      }
+    }
+
+    // Extract typography values
+    const typographyMatches = this.generatedContent.match(/typography\s*:\s*{([^}]*)}/s);
+    if (typographyMatches && typographyMatches[1]) {
+      // Extract font family
+      const fontFamilyMatch = typographyMatches[1].match(/fontFamily\s*:\s*['"]([^'"]+)['"]/);
+      if (fontFamilyMatch) {
+        this.extractedTokens.typography.fontFamily = fontFamilyMatch[1];
+        console.log('Found fontFamily:', this.extractedTokens.typography.fontFamily);
+      }
+      
+      // Extract weights
+      const weightsMatch = typographyMatches[1].match(/weights\s*:\s*{([^}]*)}/s);
+      if (weightsMatch && weightsMatch[1]) {
+        const mediumMatch = weightsMatch[1].match(/medium\s*:\s*([0-9]+)/);
