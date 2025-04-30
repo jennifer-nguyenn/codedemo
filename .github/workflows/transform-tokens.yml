@@ -1,0 +1,99 @@
+name: Transform Tokens
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'src/generated-tokens.js'
+
+jobs:
+  transform-tokens:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+      
+      - name: Create transformation script
+        run: |
+          cat > transform-tokens.js << 'EOL'
+          const fs = require('fs');
+          const path = require('path');
+
+          // Read generated tokens file
+          const generatedPath = path.join(process.cwd(), 'src', 'generated-tokens.js');
+          const tokensPath = path.join(process.cwd(), 'src', 'styles', 'tokens.ts');
+          
+          console.log('Reading generated tokens from:', generatedPath);
+          
+          try {
+            // Read the generated file
+            const generatedContent = fs.readFileSync(generatedPath, 'utf8');
+            console.log('Successfully read generated tokens file');
+            
+            // Read the current tokens file
+            const tokensContent = fs.readFileSync(tokensPath, 'utf8');
+            console.log('Successfully read tokens.ts file');
+            
+            // Extract the mobileWidth value using regex
+            // This pattern needs to be adjusted based on the actual format of generated-tokens.js
+            const mobileWidthMatch = generatedContent.match(/mobileWidth[^0-9]*([0-9]+)/);
+            
+            if (!mobileWidthMatch) {
+              console.log('Could not find mobileWidth value in generated tokens file');
+              process.exit(0);
+            }
+            
+            const newValue = mobileWidthMatch[1];
+            console.log('Found mobile width value:', newValue);
+            
+            // Update the tokens.ts file
+            const updatedContent = tokensContent.replace(
+              /(mobileWidth\s*:\s*['"])([0-9.]+)(px['"])/,
+              `$1${newValue}$3`
+            );
+            
+            if (updatedContent === tokensContent) {
+              console.log('No changes needed in tokens.ts');
+              process.exit(0);
+            }
+            
+            // Write the updated content
+            fs.writeFileSync(tokensPath, updatedContent);
+            console.log('Successfully updated tokens.ts file');
+            
+          } catch (error) {
+            console.error('Error processing tokens:', error);
+            process.exit(1);
+          }
+          EOL
+      
+      - name: Transform tokens
+        run: node transform-tokens.js
+      
+      - name: Commit changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          if [[ -n $(git status -s) ]]; then
+            git add -A
+            git commit -m "Update tokens.ts from generated tokens"
+            git push
+            echo "Changes committed and pushed"
+          else
+            echo "No changes to commit"
+          fi
+          
+      - name: Clean up generated tokens file
+        run: |
+          # Optional: Remove the generated-tokens.js file after processing
+          # git rm src/generated-tokens.js
+          # git commit -m "Remove temporary generated tokens file"
+          # git push
+          echo "Keeping generated-tokens.js for reference"
