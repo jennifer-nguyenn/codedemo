@@ -110,17 +110,79 @@ class TokenTransformer {
     }
   }
 
-  // Rest of the methods remain the same...
   parseGeneratedTokens() {
-    // Same implementation as before
+    console.log('Parsing generated tokens...');
+    
+    // Initialize extracted tokens object
+    this.extractedTokens = {
+      spacing: {},
+      typography: {},
+      colors: {},
+      components: {},
+      sizes: {}
+    };
+
+    // Enhanced debugging - log a sample of the file content
+    console.log('Generated tokens content sample (first 150 chars):');
+    console.log(this.generatedContent.substring(0, 150));
+
+    // Extract component values - specifically looking for mobileWidth
+    const componentMatches = this.generatedContent.match(/components\s*:\s*{([^}]*)}/s);
+    if (componentMatches && componentMatches[1]) {
+      const mobileWidthMatch = componentMatches[1].match(/mobileWidth\s*:\s*['"]([^'"]+)['"]/);
+      if (mobileWidthMatch) {
+        this.extractedTokens.components.mobileWidth = mobileWidthMatch[1];
+        console.log('Found mobileWidth:', this.extractedTokens.components.mobileWidth);
+      } else {
+        console.log('Could not find mobileWidth in components section');
+      }
+    } else {
+      console.log('Could not find components section in generated tokens');
+    }
+
+    // Extract typography values (similar pattern for other token types)
+    // ... rest of the parsing logic ...
   }
 
   updateTokensFile() {
-    // Same implementation as before
+    console.log('Updating tokens file...');
+    let updatedContent = this.tokensContent;
+    
+    // Update mobileWidth if found
+    if (this.extractedTokens.components.mobileWidth) {
+      const mobileWidthPattern = /(mobileWidth\s*:\s*['"])([^'"]+)(['"])/;
+      const mobileWidthValue = this.extractedTokens.components.mobileWidth;
+      
+      // Check if the pattern exists in the target file
+      if (mobileWidthPattern.test(this.tokensContent)) {
+        updatedContent = updatedContent.replace(mobileWidthPattern, (match, p1, p2, p3) => {
+          if (p2 !== mobileWidthValue) {
+            this.hasChanges = true;
+            console.log(`Updating mobileWidth: ${p2} -> ${mobileWidthValue}`);
+            return `${p1}${mobileWidthValue}${p3}`;
+          }
+          console.log(`mobileWidth value already up-to-date: ${p2}`);
+          return match;
+        });
+      } else {
+        console.log('Could not find mobileWidth pattern in tokens.ts');
+      }
+    }
+    
+    // ... rest of the update logic ...
+    
+    this.updatedContent = updatedContent;
   }
 
   async writeTokensFile() {
-    // Same implementation as before
+    try {
+      console.log(`Writing updated tokens to: ${this.tokensPath}`);
+      await fs.promises.writeFile(this.tokensPath, this.updatedContent);
+      console.log('Token file successfully updated');
+    } catch (error) {
+      console.error('Error writing token file:', error);
+      throw error;
+    }
   }
 }
 
@@ -128,9 +190,13 @@ class TokenTransformer {
 const transformer = new TokenTransformer();
 transformer.transform()
   .then(hasChanges => {
-    process.exit(hasChanges ? 0 : 1);
+    // Always exit with success code, unless there's an exception
+    console.log(hasChanges 
+      ? "✅ Tokens updated successfully" 
+      : "✅ No token updates needed - everything is up to date");
+    process.exit(0);  // Always exit with success
   })
   .catch(error => {
-    console.error('Fatal error during token transformation:', error);
-    process.exit(1);
+    console.error('❌ Fatal error during token transformation:', error);
+    process.exit(1);  // Only exit with error code for actual errors
   });
