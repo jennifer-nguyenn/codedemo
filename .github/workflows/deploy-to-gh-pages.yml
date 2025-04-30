@@ -6,7 +6,7 @@ on:
       - main
     paths:
       - 'src/tokens.ts'
-      - 'base/dimension.css'
+      - 'dimension.css'
 
 jobs:
   deploy:
