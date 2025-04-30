@@ -1,11 +1,11 @@
 name: Deploy to GitHub Pages
-
 on:
+  # This will trigger on ANY push to main, which includes token updates
   push:
     branches:
       - main
-    paths:
-      - 'src/styles/tokens.ts'
+  # Add manual trigger for testing
+  workflow_dispatch:
 
 jobs:
   deploy:
