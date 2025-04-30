@@ -1,4 +1,4 @@
-name: Deploy to GitHub Pages
+name: Direct Deploy to GitHub Pages
 
 on:
   push:
@@ -6,17 +6,13 @@ on:
       - main
     paths:
       - 'src/tokens.ts'
-      - 'dimension.css/base/dimension.css'
-      - 'dimension.css/index.css'
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout main branch
+      - name: Checkout code
         uses: actions/checkout@v3
-        with:
-          ref: main
       
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -25,14 +21,22 @@ jobs:
       
       - name: Install dependencies
         run: npm install
-        
+      
       - name: Build project
         run: npm run build
+        
+      - name: Debug build output
+        run: |
+          echo "Build directory contents:"
+          ls -la build || echo "Build directory not found"
+          
+          # List all generated files
+          echo "All generated files:"
+          find build -type f -name "*.js" -o -name "*.css" | head -20
       
-      - name: Deploy to gh-pages branch
+      - name: Deploy to gh-pages
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: gh-pages
-          folder: build # Adjust if your build output is in a different folder
-          # Only deploy files that would contain updated tokens
-          clean: false # Don't remove existing files in gh-pages branch
+          folder: build
+          clean: false
