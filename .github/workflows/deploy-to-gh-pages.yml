@@ -3,7 +3,6 @@ on:
   push:
     branches:
       - main
-  # Add manual trigger for testing
   workflow_dispatch:
 
 jobs:
@@ -21,20 +20,43 @@ jobs:
       - name: Install dependencies
         run: npm install
       
-      - name: Check public URL configuration
+      - name: Verify public directory files
         run: |
-          echo "Checking package.json configuration..."
-          grep "homepage" package.json || echo "No homepage found in package.json"
+          echo "Checking public directory..."
+          ls -la public/
+          
+          # Check if manifest.json exists, create if not
+          if [ ! -f "public/manifest.json" ]; then
+            echo "Creating manifest.json..."
+            echo '{
+              "short_name": "CodeDemo",
+              "name": "Code Demo App",
+              "icons": [
+                {
+                  "src": "favicon.ico",
+                  "sizes": "64x64 32x32 24x24 16x16",
+                  "type": "image/x-icon"
+                }
+              ],
+              "start_url": ".",
+              "display": "standalone",
+              "theme_color": "#000000",
+              "background_color": "#ffffff"
+            }' > public/manifest.json
+          fi
+          
+          # If favicon doesn't exist, create a placeholder
+          if [ ! -f "public/favicon.ico" ]; then
+            echo "Note: favicon.ico is missing. You may want to add one manually."
+            # We can't easily create a binary .ico file in the workflow
+          fi
       
       - name: Build
         run: npm run build
-      
-      - name: List build directory
-        run: ls -la build
       
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: gh-pages
           folder: build
-          clean: true  # Changed to true to ensure clean deployment
+          clean: true
