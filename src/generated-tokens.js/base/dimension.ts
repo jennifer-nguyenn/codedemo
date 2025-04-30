@@ -3,7 +3,7 @@
  * To modify the format or content of this file, please contact your design system team. 
  */
 
-const dimensionOrderInfoCardMobileWidth = '311px';
+const dimensionOrderInfoCardMobileWidth = '400px';
 
 export const DimensionTokens = {
   dimensionOrderInfoCardMobileWidth,
