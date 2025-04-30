@@ -39,6 +39,7 @@ jobs:
       
       # Force trigger the deployment workflow for tokens.ts changes
       - name: Force deployment trigger
+        if: steps.commit.outputs.changes_made == 'true'
         run: |
           echo "Ensuring deployment is triggered..."
           # Touch the tokens file to update its timestamp
