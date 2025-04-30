@@ -1,4 +1,5 @@
 name: Deploy to GitHub Pages
+
 on:
   push:
     branches:
@@ -11,52 +12,22 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-      
+
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16'
-      
+
       - name: Install dependencies
         run: npm install
-      
-      - name: Verify public directory files
-        run: |
-          echo "Checking public directory..."
-          ls -la public/
-          
-          # Check if manifest.json exists, create if not
-          if [ ! -f "public/manifest.json" ]; then
-            echo "Creating manifest.json..."
-            echo '{
-              "short_name": "CodeDemo",
-              "name": "Code Demo App",
-              "icons": [
-                {
-                  "src": "favicon.ico",
-                  "sizes": "64x64 32x32 24x24 16x16",
-                  "type": "image/x-icon"
-                }
-              ],
-              "start_url": ".",
-              "display": "standalone",
-              "theme_color": "#000000",
-              "background_color": "#ffffff"
-            }' > public/manifest.json
-          fi
-          
-          # If favicon doesn't exist, create a placeholder
-          if [ ! -f "public/favicon.ico" ]; then
-            echo "Note: favicon.ico is missing. You may want to add one manually."
-            # We can't easily create a binary .ico file in the workflow
-          fi
-      
+
       - name: Build
         run: npm run build
-      
+
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: gh-pages
           folder: build
-          clean: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
