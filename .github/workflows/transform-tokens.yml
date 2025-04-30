@@ -20,39 +20,22 @@ jobs:
       - name: Transform tokens
         run: node scripts/transform-tokens.js
       
-      - name: Commit changes
-        id: commit
+      - name: Commit changes and trigger deployment
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
+          # Commit any changes from token transformation
           if [[ -n $(git status -s) ]]; then
             git add -A
             git commit -m "Update design tokens from Supernova"
             git push
-            echo "changes_made=true" >> $GITHUB_OUTPUT
-            echo "✅ Changes committed and pushed"
+            echo "✅ Token changes committed"
           else
-            echo "changes_made=false" >> $GITHUB_OUTPUT
-            echo "ℹ️ No changes to commit"
+            echo "ℹ️ No token changes to commit"
           fi
           
-          # Debug - print the value to see what's being set
-          echo "Output value: $(cat $GITHUB_OUTPUT)"
-      
-      # Force trigger the deployment workflow for tokens.ts changes
-      - name: Force deployment trigger
-        if: steps.commit.outputs.changes_made == 'true'
-        run: |
-          echo "Changes made: ${{ steps.commit.outputs.changes_made }}"
-          echo "Ensuring deployment is triggered..."
-          # Touch the tokens file to update its timestamp
-          touch src/styles/tokens.ts
-          git add src/styles/tokens.ts
-          git commit -m "Trigger deployment workflow [skip ci]"
+          # Always create an empty commit to trigger deployment
+          # This ensures deployment happens regardless of whether tokens changed
+          git commit --allow-empty -m "Trigger deployment workflow [skip ci]"
           git push
-      
-      # Add a step that runs even if no changes need deployment
-      - name: No changes detected
-        if: steps.commit.outputs.changes_made != 'true'
-        run: echo "No changes detected, skipping deployment trigger"
