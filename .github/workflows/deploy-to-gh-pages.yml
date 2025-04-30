@@ -1,6 +1,5 @@
 name: Deploy to GitHub Pages
 on:
-  # This will trigger on ANY push to main, which includes token updates
   push:
     branches:
       - main
@@ -22,12 +21,20 @@ jobs:
       - name: Install dependencies
         run: npm install
       
+      - name: Check public URL configuration
+        run: |
+          echo "Checking package.json configuration..."
+          grep "homepage" package.json || echo "No homepage found in package.json"
+      
       - name: Build
         run: npm run build
+      
+      - name: List build directory
+        run: ls -la build
       
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@4.1.4
         with:
           branch: gh-pages
           folder: build
-          clean: false
+          clean: true  # Changed to true to ensure clean deployment
