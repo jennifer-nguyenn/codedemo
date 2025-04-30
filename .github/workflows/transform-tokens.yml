@@ -11,6 +11,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+        with:
+          # This is important to ensure we get the full git history
+          fetch-depth: 0
       
       - name: Set up Node.js
         uses: actions/setup-node@v3
@@ -20,22 +23,28 @@ jobs:
       - name: Transform tokens
         run: node scripts/transform-tokens.js
       
-      - name: Commit changes and trigger deployment
+      - name: Commit changes
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
-          # Commit any changes from token transformation
+          # Check if there are changes to commit
           if [[ -n $(git status -s) ]]; then
-            git add -A
-            git commit -m "Update design tokens from Supernova"
-            git push
-            echo "✅ Token changes committed"
+            # Check if tokens.ts was modified
+            if [[ -n $(git status -s | grep "src/styles/tokens.ts") ]]; then
+              echo "✅ tokens.ts was modified, committing changes"
+              git add -A
+              # Critical: No [skip ci] - we want to trigger the deployment workflow
+              git commit -m "Update design tokens from Supernova"
+              git push
+              echo "✅ Changes pushed - deployment workflow should be triggered"
+            else
+              echo "ℹ️ Changes detected but not in tokens.ts"
+              git add -A
+              git commit -m "Update other files from token transformation"
+              git push
+              echo "✅ Changes committed but deployment not triggered (tokens.ts unchanged)"
+            fi
           else
-            echo "ℹ️ No token changes to commit"
+            echo "ℹ️ No changes to commit"
           fi
-          
-          # Always create an empty commit to trigger deployment
-          # This ensures deployment happens regardless of whether tokens changed
-          git commit --allow-empty -m "Trigger deployment workflow [skip ci]"
-          git push
