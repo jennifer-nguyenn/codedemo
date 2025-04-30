@@ -1,19 +1,16 @@
-name: Update Tokens from Dimension CSS
+name: Direct Update Tokens
 
 on:
   pull_request:
     types: [opened, synchronize]
     paths:
-      - 'dimension.css/base/dimension.css'
-      - 'dimension.css/index.css'
+      - '**dimension.css'  # Match any path containing dimension.css
     branches:
       - main
 
 jobs:
   update-tokens:
     runs-on: ubuntu-latest
-    # Only run on PRs created by Supernova targeting main
-    if: contains(github.event.pull_request.title, 'Supernova') || contains(github.event.pull_request.body, 'Supernova')
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -25,122 +22,128 @@ jobs:
         with:
           node-version: '16'
       
-      - name: Create scripts directory if it doesn't exist
-        run: mkdir -p .github/scripts
-      
-      - name: Create update script
+      - name: Find dimension.css files
+        id: find-files
         run: |
-          cat > .github/scripts/update-tokens-from-css.js << 'EOL'
+          echo "Found dimension files:"
+          find . -name "dimension.css" -type f
+      
+      - name: Extract and update tokens
+        run: |
+          # Create script to update tokens
+          cat > update_tokens.js << 'EOL'
           const fs = require('fs');
           const path = require('path');
 
-          // Updated paths to files - adjusted for actual Supernova paths
-          const dimensionCssPath = path.join(process.cwd(), 'dimension.css', 'base', 'dimension.css');
-          const tokensJsPath = path.join(process.cwd(), 'src', 'tokens.ts');
-
-          console.log('Starting update script on main branch');
-          console.log(`Dimension CSS path: ${dimensionCssPath}`);
-          console.log(`Tokens TS path: ${tokensJsPath}`);
-
-          // Function to extract dimension values from CSS
-          function extractDimensionValues(cssContent) {
-            const values = {};
-            const pattern = /--dimension-order-info-card-mobile-width:\s*([\d.]+)px/g;
-            let match;
+          // Find all dimension.css files
+          const findFiles = (dir, pattern) => {
+            let results = [];
+            const list = fs.readdirSync(dir);
             
-            while ((match = pattern.exec(cssContent)) !== null) {
-              const value = match[1];
-              values['order-info-card-mobile-width'] = value;
-              console.log(`Found dimension: order-info-card-mobile-width = ${value}px`);
-            }
-            
-            return values;
-          }
-
-          // Function to update tokens.ts with only changed values
-          function updateTokensFile(tokensContent, dimensionValues) {
-            let updatedContent = tokensContent;
-            let changesMade = false;
-            
-            const orderCardValue = dimensionValues['order-info-card-mobile-width'];
-            if (orderCardValue) {
-              console.log(`Updating orderInfoCard.mobileWidth to ${orderCardValue}px`);
+            list.forEach(file => {
+              file = path.resolve(dir, file);
+              const stat = fs.statSync(file);
               
-              // Pattern to find the specific property in tokens.ts
-              const pattern = /(orderInfoCard\s*:\s*{\s*mobileWidth\s*:\s*['"])([0-9.]+)(px['"])/;
-              
-              const match = updatedContent.match(pattern);
-              if (match) {
-                const oldValue = match[2];
-                if (oldValue !== orderCardValue) {
-                  updatedContent = updatedContent.replace(pattern, `$1${orderCardValue}$3`);
-                  console.log(`Updated orderInfoCard.mobileWidth: ${oldValue}px -> ${orderCardValue}px`);
-                  changesMade = true;
-                } else {
-                  console.log(`No change needed for orderInfoCard.mobileWidth, value already ${orderCardValue}px`);
-                }
-              } else {
-                console.log(`Could not find pattern for orderInfoCard.mobileWidth in tokens.ts`);
+              if (stat && stat.isDirectory()) { 
+                results = results.concat(findFiles(file, pattern));
+              } else if (file.includes(pattern)) {
+                results.push(file);
               }
-            }
+            });
             
-            return { updatedContent, changesMade };
+            return results;
+          };
+
+          // Find all dimension.css files
+          console.log('Searching for dimension.css files...');
+          const dimensionFiles = findFiles('.', 'dimension.css');
+          console.log('Found files:', dimensionFiles);
+
+          // Path to tokens.ts
+          let tokensJsPath = path.join(process.cwd(), 'src', 'tokens.ts');
+          if (!fs.existsSync(tokensJsPath)) {
+            console.log('tokens.ts not found at:', tokensJsPath);
+            const srcDir = path.join(process.cwd(), 'src');
+            if (fs.existsSync(srcDir)) {
+              console.log('src directory exists, listing contents:');
+              console.log(fs.readdirSync(srcDir));
+            } else {
+              console.log('src directory does not exist');
+            }
+            // Find tokens.ts anywhere in the repo
+            console.log('Searching for tokens.ts elsewhere...');
+            const tokensFiles = findFiles('.', 'tokens.ts');
+            console.log('Found potential tokens.ts files:', tokensFiles);
+            
+            if (tokensFiles.length > 0) {
+              tokensJsPath = tokensFiles[0];
+              console.log('Using tokens.ts at:', tokensJsPath);
+            } else {
+              console.error('Could not find tokens.ts anywhere');
+              process.exit(1);
+            }
           }
 
-          // Main function
-          try {
-            // Check if files exist
-            if (!fs.existsSync(dimensionCssPath)) {
-              console.error(`dimension.css file not found at ${dimensionCssPath}`);
-              process.exit(1);
+          // Read tokens.ts
+          const tokensContent = fs.readFileSync(tokensJsPath, 'utf8');
+          console.log('Read tokens.ts successfully');
+
+          let newValue = null;
+          
+          // Check each dimension.css file for the mobile width
+          for (const file of dimensionFiles) {
+            console.log('Checking file:', file);
+            const cssContent = fs.readFileSync(file, 'utf8');
+            
+            // Look for the specific dimension we're interested in
+            const mobileWidthMatch = cssContent.match(/--dimension-order-info-card-mobile-width:\s*(\d+)px/);
+            if (mobileWidthMatch) {
+              newValue = mobileWidthMatch[1];
+              console.log('Found mobile width value:', newValue);
+              break;
             }
             
-            if (!fs.existsSync(tokensJsPath)) {
-              console.error(`tokens.ts file not found at ${tokensJsPath}`);
-              process.exit(1);
+            // Alternative pattern in case of different formatting
+            const alternativeMatch = cssContent.match(/order-info-card-mobile-width:\s*(\d+)px/);
+            if (alternativeMatch) {
+              newValue = alternativeMatch[1];
+              console.log('Found mobile width value (alternative format):', newValue);
+              break;
             }
-            
-            // Read files
-            const dimensionCssContent = fs.readFileSync(dimensionCssPath, 'utf8');
-            const tokensContent = fs.readFileSync(tokensJsPath, 'utf8');
-            
-            // Extract values from dimension.css
-            const dimensionValues = extractDimensionValues(dimensionCssContent);
-            
-            if (Object.keys(dimensionValues).length === 0) {
-              console.log('No dimension values found in CSS file');
-              process.exit(0);
-            }
-            
-            // Update tokens.ts
-            const { updatedContent, changesMade } = updateTokensFile(tokensContent, dimensionValues);
-            
-            if (changesMade) {
-              // Write updated content
-              fs.writeFileSync(tokensJsPath, updatedContent);
-              console.log('tokens.ts updated successfully');
-            } else {
-              console.log('No changes needed in tokens.ts');
-            }
-          } catch (error) {
-            console.error('Error:', error);
-            process.exit(1);
+          }
+
+          if (!newValue) {
+            console.log('Could not find mobile width value in any dimension.css file');
+            process.exit(0);
+          }
+
+          // Update tokens.ts
+          const updatedContent = tokensContent.replace(
+            /(orderInfoCard\s*:\s*{\s*mobileWidth\s*:\s*['"])(\d+)(px['"])/,
+            `$1${newValue}$3`
+          );
+
+          if (updatedContent !== tokensContent) {
+            fs.writeFileSync(tokensJsPath, updatedContent);
+            console.log('Updated tokens.ts with new mobile width value:', newValue);
+          } else {
+            console.log('No changes made to tokens.ts');
           }
           EOL
 
-      - name: Run update script
-        run: node .github/scripts/update-tokens-from-css.js
-      
-      - name: Check for changes
-        id: git-check
-        run: |
-          git diff --exit-code --quiet src/tokens.ts || echo "changes=true" >> $GITHUB_OUTPUT
+          # Run the script
+          node update_tokens.js
       
       - name: Commit changes if any
-        if: steps.git-check.outputs.changes == 'true'
         run: |
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git add src/tokens.ts
-          git commit -m "Update tokens.ts based on dimension.css changes from Supernova"
-          git push
+          
+          if [[ -n $(git status -s) ]]; then
+            git add -A
+            git commit -m "Update tokens.ts with new dimension values"
+            git push
+            echo "Changes committed and pushed"
+          else
+            echo "No changes to commit"
+          fi
