@@ -103,8 +103,8 @@ export const OrderInfoCard: React.FC<OrderInfoCardProps> = ({
 }) => {
   const {
     showTime = false,
-    showPaymentBadge = false,
-    showManagePaymentPlan = false,
+    showPaymentBadge = true,
+    showManagePaymentPlan = true,
   } = features;
 
   return (
