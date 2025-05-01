@@ -13,6 +13,7 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    concurrency: ci-${{ github.ref }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -31,12 +32,11 @@ jobs:
         env:
           PUBLIC_URL: "https://jennifer-nguyenn.github.io/codedemo"
           
-      - name: Debug Build Output
-        run: find build -type f | sort
-          
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
           branch: gh-pages
           folder: build
           token: ${{ secrets.GH_PAT }}
+          commit-message: "Deploy token updates [ci skip]"
+          clean: true
