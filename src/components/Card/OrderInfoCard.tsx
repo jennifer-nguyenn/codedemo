@@ -121,7 +121,10 @@ export const OrderInfoCard: React.FC<OrderInfoCardProps> = ({
           {date}
         </Text>
         {showTime && (
-          <Text variant="tiny" style={{ color: tokens.colors.darkTextSecondary }}>
+          <Text
+            variant="tiny"
+            style={{ color: tokens.colors.darkTextSecondary }}
+          >
             {time}
           </Text>
         )}

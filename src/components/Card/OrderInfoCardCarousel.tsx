@@ -35,7 +35,9 @@ const CardWrapper = styled.div`
   min-width: ${tokens.components.orderInfoCard.mobileWidth};
 `;
 
-export const OrderInfoCardCarousel: React.FC<OrderInfoCardCarouselProps> = ({ orders }) => {
+export const OrderInfoCardCarousel: React.FC<OrderInfoCardCarouselProps> = ({
+  orders,
+}) => {
   return (
     <OuterWrapper>
       <CarouselContainer>
@@ -55,4 +57,4 @@ export const OrderInfoCardCarousel: React.FC<OrderInfoCardCarouselProps> = ({ or
       </CarouselContainer>
     </OuterWrapper>
   );
-}; 
+};
