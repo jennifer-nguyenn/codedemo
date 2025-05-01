@@ -41,7 +41,7 @@ export const OrderInfoCardCarousel: React.FC<OrderInfoCardCarouselProps> = ({
   return (
     <OuterWrapper>
       <CarouselContainer>
-        {orders.map((order, idx) => (
+        {orders.map((order) => (
           <CardWrapper key={order.orderId}>
             <OrderInfoCard
               date={order.date}
