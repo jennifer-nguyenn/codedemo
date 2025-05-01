@@ -1,33 +1,46 @@
-name: Deploy to GitHub Pages
-
+name: Build and Deploy
 on:
   push:
-    branches:
-      - main
+    branches: [main]
   workflow_dispatch:
 
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+permissions:
+  contents: write
+  pages: write
+  id-token: write
 
-      - name: Set up Node.js
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: '16'
-
-      - name: Install dependencies
-        run: npm install
-
+          node-version: 18
+          cache: 'npm'
+          
+      - name: Install Dependencies
+        run: npm ci
+        
       - name: Build
         run: npm run build
-
+        env:
+          PUBLIC_URL: "https://jennifer-nguyenn.github.io/codedemo"
+          
+      - name: Debug Build Output
+        run: find build -type f | sort
+          
       - name: Deploy to GitHub Pages
-        uses: JamesIves/github-pages-deploy-action@4.1.4
+        id: deployment
+        uses: JamesIves/github-pages-deploy-action@v4.4.3
         with:
           branch: gh-pages
           folder: build
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_PAT }}
+          clean: true
+          token: ${{ secrets.GH_PAT }}
