@@ -5,15 +5,13 @@ on:
       - main
   workflow_dispatch:
 
+# Basic permissions needed
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    concurrency: ci-${{ github.ref }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -32,11 +30,11 @@ jobs:
         env:
           PUBLIC_URL: "https://jennifer-nguyenn.github.io/codedemo"
           
+      # Simple direct deployment approach
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          branch: gh-pages
           folder: build
           token: ${{ secrets.GH_PAT }}
-          commit-message: "Deploy token updates [ci skip]"
-          clean: true
+          branch: gh-pages
+          commit-message: "Deploy [skip ci]" # Skip CI to prevent recursive triggers
