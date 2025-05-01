@@ -1,0 +1,58 @@
+name: Transform Tokens and Deploy
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  transform-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout code
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      # Step 2: Set up Node.js
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm ci
+        
+      # Step 4: Transform tokens using your existing script
+      - name: Transform tokens
+        run: node scripts/transform-tokens.js
+          
+      # Step 5: Commit transformed tokens
+      - name: Commit transformed tokens
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Transform design tokens" || echo "No changes to commit"
+          git push
+          
+      # Step 6: Build the application
+      - name: Build
+        run: |
+          npm run build
+          touch build/.nojekyll
+        env:
+          PUBLIC_URL: "https://jennifer-nguyenn.github.io/codedemo"
+          
+      # Step 7: Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          personal_token: ${{ secrets.GH_PAT }}
+          publish_dir: ./build
+          force_orphan: true
+          commit_message: "Deploy to GitHub Pages"
