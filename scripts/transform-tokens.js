@@ -16,6 +16,18 @@ class TokenTransformer {
       'dimensionOrderInfoCardMobileWidth': { 
         path: 'mobileWidth', 
         regex: /(mobileWidth\s*:\s*['"])([^'"]+)(['"])/
+      },
+      'orderInfoCardShowTime': {
+        path: 'showTime',
+        regex: /(showTime\s*:\s*)(true|false)/
+      },
+      'orderInfoCardShowPaymentBadge': {
+        path: 'showPaymentBadge',
+        regex: /(showPaymentBadge\s*:\s*)(true|false)/
+      },
+      'orderInfoCardShowManagePaymentPlan': {
+        path: 'showManagePaymentPlan',
+        regex: /(showManagePaymentPlan\s*:\s*)(true|false)/
       }
       // Add more mappings as needed for other tokens
     };

@@ -4,7 +4,6 @@ import './styles/global.css';
 import './components/Button/index.css';
 import { H2, H4, Text } from './components/Typography';
 import { ItemCard, ActionButton } from './components/Card';
-import { OrderInfoCard } from './components/Card/OrderInfoCard';
 import { RewardsActionButton } from './components/Button/RewardsActionButton';
 import { tokens } from './styles/tokens';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
@@ -14,6 +13,7 @@ import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import IosShareIcon from '@mui/icons-material/IosShare';
 import { RewardCard } from './components/Card/RewardCard';
+import { OrderInfoCardCarousel } from './components/Card/OrderInfoCardCarousel';
 
 const rewards = {
   points: 10,
@@ -68,6 +68,18 @@ const orders: Order[] = [
     time: '2:32pm EST',
     orderId: 'PKF94KFY',
     count: 3,
+  },
+  {
+    date: 'Aug 13, 2025',
+    time: '1:15pm EST',
+    orderId: 'ABC123DE',
+    count: 2,
+  },
+  {
+    date: 'Aug 12, 2025',
+    time: '11:45am EST',
+    orderId: 'XYZ789FG',
+    count: 1,
   },
 ];
 
@@ -281,19 +293,7 @@ const App: React.FC = () => {
                     >
                       Your Orders
                     </Text>
-                    <div
-                      style={{ display: 'flex', gap: tokens.spacing.space3 }}
-                    >
-                      {orders.map(order => (
-                        <OrderInfoCard
-                          key={order.orderId}
-                          date={order.date}
-                          time={order.time}
-                          orderId={order.orderId}
-                          count={order.count}
-                        />
-                      ))}
-                    </div>
+                    <OrderInfoCardCarousel orders={orders} />
                   </div>
 
                   {/* Your Items */}

@@ -33,7 +33,7 @@ export const tokens = {
   },
   components: {
     orderInfoCard: {
-      mobileWidth: '167.5px',
+      mobileWidth: '311px',
     },
   },
   typography: {
@@ -149,5 +149,11 @@ export const globalStyles = css`
     --radius-pill: ${tokens.borderRadius.pill};
   }
 `;
+
+export const orderInfoCardFeatures = {
+  showTime: false,
+  showPaymentBadge: false,
+  showManagePaymentPlan: false,
+};
 
 export type Tokens = typeof tokens;
