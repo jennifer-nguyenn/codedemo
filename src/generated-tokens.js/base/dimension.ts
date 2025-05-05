@@ -3,10 +3,10 @@
  * To modify the format or content of this file, please contact your design system team. 
  */
 
-const dimensionOrderInfoCardMobileWidth = '311px';
-const dimensionOrderInfoCardShowTime = '1';
-const dimensionOrderInfoCardShowPaymentBadge = '0';
-const dimensionOrderInfoCardShowManagePaymentPlan = '0';
+const dimensionOrderInfoCardMobileWidth = '167.5px';
+const dimensionOrderInfoCardShowTime = '0';
+const dimensionOrderInfoCardShowPaymentBadge = '1';
+const dimensionOrderInfoCardShowManagePaymentPlan = '1';
 
 export const DimensionTokens = {
   dimensionOrderInfoCardMobileWidth,
