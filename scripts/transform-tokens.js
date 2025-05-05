@@ -18,17 +18,21 @@ class TokenTransformer {
         path: 'mobileWidth',
         regex: /(\bmobileWidth\s*:\s*['"]?)([^'",\s]+)(['"]?)/,
       },
-      orderInfoCardShowTime: {
+      // Updated token names to match the dimension.ts file
+      dimensionOrderInfoCardShowTime: {
         path: 'showTime',
         regex: /(\bshowTime\s*:\s*)(true|false)(\s*,?)/,
+        isBoolean: true,
       },
-      orderInfoCardShowPaymentBadge: {
+      dimensionOrderInfoCardShowPaymentBadge: {
         path: 'showPaymentBadge',
         regex: /(\bshowPaymentBadge\s*:\s*)(true|false)(\s*,?)/,
+        isBoolean: true,
       },
-      orderInfoCardShowManagePaymentPlan: {
+      dimensionOrderInfoCardShowManagePaymentPlan: {
         path: 'showManagePaymentPlan',
         regex: /(\bshowManagePaymentPlan\s*:\s*)(true|false)(\s*,?)/,
+        isBoolean: true,
       },
     };
   }
@@ -186,10 +190,18 @@ class TokenTransformer {
 
         const beforeUpdate = updatedContent;
         updatedContent = updatedContent.replace(mapping.regex, (match, p1, p2, p3) => {
-          if (p2 !== newValue) {
-            console.log(`Updating ${mapping.path}: ${p2} -> ${newValue}`);
+          // Convert string '0'/'1' to boolean 'false'/'true' for boolean fields
+          let displayValue = newValue;
+          if (mapping.isBoolean) {
+            // Convert string values to boolean literals for tokens.ts
+            displayValue = newValue === '1' ? 'true' : 'false';
+            console.log(`Converting value: ${newValue} -> ${displayValue} (boolean)`);
+          }
+          
+          if (p2 !== displayValue) {
+            console.log(`Updating ${mapping.path}: ${p2} -> ${displayValue}`);
             tokenUpdateCount++;
-            return `${p1}${newValue}${p3 || ''}`;
+            return `${p1}${displayValue}${p3 || ''}`;
           }
           return match;
         });
