@@ -151,9 +151,9 @@ export const globalStyles = css`
 `;
 
 export const orderInfoCardFeatures = {
-  showTime: 1,
-  showPaymentBadge: 0,
-  showManagePaymentPlan: 0,
+  showTime: true,
+  showPaymentBadge: false,
+  showManagePaymentPlan: false,
 };
 
 export type Tokens = typeof tokens;
