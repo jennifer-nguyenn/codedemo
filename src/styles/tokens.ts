@@ -33,7 +33,7 @@ export const tokens = {
   },
   components: {
     orderInfoCard: {
-      mobileWidth: '311px',
+      mobileWidth: '167.5px',
     },
   },
   typography: {
