@@ -4,13 +4,13 @@
  */
 
 const dimensionOrderInfoCardMobileWidth = '311px';
-const dimensionOrderInfoCardShowTime = '0';
-const dimensionOrderInfoCardShowPaymentBadge = '0';
-const dimensionOrderInfoCardShowManagePaymentPlan = '0';
+const dimensionOrderInfoCardBooleansShowTime = '1';
+const dimensionOrderInfoCardBooleansShowPaymentBadge = '0';
+const dimensionOrderInfoCardBooleansShowManagePaymentPlan = '0';
 
 export const DimensionTokens = {
   dimensionOrderInfoCardMobileWidth,
-  dimensionOrderInfoCardShowTime,
-  dimensionOrderInfoCardShowPaymentBadge,
-  dimensionOrderInfoCardShowManagePaymentPlan,
+  dimensionOrderInfoCardBooleansShowTime,
+  dimensionOrderInfoCardBooleansShowPaymentBadge,
+  dimensionOrderInfoCardBooleansShowManagePaymentPlan,
 }
