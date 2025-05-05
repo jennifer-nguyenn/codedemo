@@ -4,9 +4,10 @@
  */
 
 const dimensionOrderInfoCardMobileWidth = '311px';
-const dimensionOrderInfoCardBooleansShowTime = '1';
-const dimensionOrderInfoCardBooleansShowPaymentBadge = '0';
-const dimensionOrderInfoCardBooleansShowManagePaymentPlan = '0';
+const dimensionOrderInfoCardShowTime = false;
+const dimensionOrderInfoCardShowPaymentBadge = true;
+const dimensionOrderInfoCardShowManagePaymentPlan = true;
+
 
 export const DimensionTokens = {
   dimensionOrderInfoCardMobileWidth,

@@ -150,4 +150,10 @@ export const globalStyles = css`
   }
 `;
 
+export const orderInfoCardFeatures = {
+  showTime: false,
+  showPaymentBadge: true,
+  showManagePaymentPlan: true,
+};
+
 export type Tokens = typeof tokens;

@@ -79,7 +79,7 @@ export const ItemCard = styled.div<CardProps>`
   color: ${tokens.colors.textPrimary};
   overflow: hidden;
   width: 168px;
-  height: 194px; /* Base aspect ratio ~1.15 */
+  height: 194px;
   flex: 0 0 168px;
   display: flex;
   flex-direction: column;
@@ -88,14 +88,14 @@ export const ItemCard = styled.div<CardProps>`
 
   @media (min-width: ${tokens.breakpoints.tablet}) {
     width: 240px;
-    height: 277px; /* Maintains ~1.15 aspect ratio (240 × 1.15) */
     flex: 0 0 240px;
+    /* height remains 194px */
   }
 
   @media (min-width: ${tokens.breakpoints.desktop}) {
     width: 381px;
-    height: 438px; /* Maintains ~1.15 aspect ratio (381 × 1.15) */
     flex: 0 0 381px;
+    /* height remains 194px */
   }
 
   .image-container {
