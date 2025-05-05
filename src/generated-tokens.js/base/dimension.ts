@@ -3,14 +3,15 @@
  * To modify the format or content of this file, please contact your design system team. 
  */
 
-const dimensionOrderInfoCardMobileWidth = '167.5px';
+const dimensionOrderInfoCardMobileWidth = '311px';
 const dimensionOrderInfoCardShowTime = false;
 const dimensionOrderInfoCardShowPaymentBadge = true;
 const dimensionOrderInfoCardShowManagePaymentPlan = true;
 
+
 export const DimensionTokens = {
   dimensionOrderInfoCardMobileWidth,
-  dimensionOrderInfoCardShowTime,
-  dimensionOrderInfoCardShowPaymentBadge,
-  dimensionOrderInfoCardShowManagePaymentPlan,
+  dimensionOrderInfoCardBooleansShowTime,
+  dimensionOrderInfoCardBooleansShowPaymentBadge,
+  dimensionOrderInfoCardBooleansShowManagePaymentPlan,
 }
