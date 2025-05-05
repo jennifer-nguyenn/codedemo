@@ -33,7 +33,7 @@ export const tokens = {
   },
   components: {
     orderInfoCard: {
-      mobileWidth: '311px',
+      mobileWidth: '167.5px',
     },
   },
   typography: {
@@ -151,9 +151,9 @@ export const globalStyles = css`
 `;
 
 export const orderInfoCardFeatures = {
-  showTime: false,
-  showPaymentBadge: true,
-  showManagePaymentPlan: true,
+  showTime: true,
+  showPaymentBadge: false,
+  showManagePaymentPlan: false,
 };
 
 export type Tokens = typeof tokens;
