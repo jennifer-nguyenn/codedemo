@@ -6,11 +6,17 @@
 // Type-specific interfaces
 export interface DimensionTokens {
   dimensionOrderInfoCardMobileWidth: string;
+  dimensionOrderInfoCardShowTime: string;
+  dimensionOrderInfoCardShowPaymentBadge: string;
+  dimensionOrderInfoCardShowManagePaymentPlan: string;
 }
 
 // Combined flat token type
 export interface TokenObject {
   dimensionOrderInfoCardMobileWidth: string;
+  dimensionOrderInfoCardShowTime: string;
+  dimensionOrderInfoCardShowPaymentBadge: string;
+  dimensionOrderInfoCardShowManagePaymentPlan: string;
 }
 
 // Default export type
